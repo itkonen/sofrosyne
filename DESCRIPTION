@@ -1,0 +1,48 @@
+Package: sofrosyne
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R:
+    person("Juha", "Itkonen", , "itkonen.juha@gmail.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends:
+    tidyverse,
+    R (>= 4.2.0)
+Imports:
+    dplyr,
+    purrr,
+    stringr,
+    tibble,
+    tidyr,
+    forcats,
+    lubridate,
+    httr2,
+    KFAS,
+    zoo,
+    hms,
+    forecast,
+    R6,
+    shiny,
+    htmltools,
+    bslib,
+    rlang,
+    glue,
+    slider,
+    roboplotr (>= 2.4.2),
+    scales,
+    cachem,
+    openssl,
+    pergamos (>= 0.1.1),
+    RPostgres,
+    cli,
+    pool,
+    jsonlite,
+    plumber,
+    later
+Remotes:
+    robonomist/roboplotr,
+    robonomist/pergamos
