@@ -13,7 +13,7 @@ SofrosyneDB <- R6Class(
         drv = RPostgres::Postgres(),
         host = getOption("sofrosyne.db_host"),
         user = getOption("sofrosyne.db_user"),
-        db = "postgres",
+        db = "sofrosyne",
         password = getOption("sofrosyne.db_password"),
         maxSize = getOption("sofrosyne.db_max_connections", 5)
       ) |> with_errors("SofrosyneDB failed to connect to database")
