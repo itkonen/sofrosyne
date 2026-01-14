@@ -30,37 +30,45 @@ authorized_ui <- function(req) {
     sofrosyne_dependencies()
 }
 
-#' @import pergamos
+#' Handle Fitbit OAuth redirect callback and forward code/state to backend.
+#' Returns a UI object (script redirect) or NULL if not applicable/invalid.
+handle_fitbit_redirect_ui <- function(req) {
+  query <- parseQueryString(req$QUERY_STRING)
+  if (!is.null(query$code) && !is.null(query$state)) {
+    request(getOption("sofrosyne.backend_url")) |>
+      req_url_path("fitbit-auth-code") |>
+      req_headers(
+        Authorization =
+          paste("Bearer", getOption("sofrosyne.backend_access_token"))
+      ) |>
+      req_url_query(
+        code = query$code,
+        state = query$state
+      ) |>
+      req_perform()
+
+    ## TODO: This should be asynchronous, but there's a possible race
+    ## condition if the user is redirected before the backend has processed
+    ## the authorization code (and cannot access the data yet).
+    system_message(
+      "Fitbit authorization sent to backend. Redirecting user to main UI"
+    )
+    return(tags$script(HTML("location.replace('/');")))
+  }
+
+  system_message("Invalid query string in Fitbit redirect URI")
+  NULL
+}
+
+#' @import aegis
 #' @importFrom htmltools HTML
 ui <- function(req) {
-  ## Catch Fitbit authorization code and send it to the backend
   if (req$PATH_INFO == "/fitbit-redirect-url") {
-    query <- parseQueryString(req$QUERY_STRING)
-    if (!is.null(query$code) && !is.null(query$state)) {
-      url <- paste0(getOption("sofrosyne.backend_url"), "/fitbit-auth-code")
-      request(url) |>
-        req_headers(
-          Authorization =
-            paste("Bearer", getOption("sofrosyne.backend_access_token"))
-        ) |>
-        req_url_query(
-          code = query$code,
-          state = query$state
-        ) |>
-        req_perform()
-      system_message(
-        "Fitbit authorization sent to backend. Redirecting user to main UI"
-      )
-      tags$script(
-        HTML("location.replace('/');")
-      )
-    } else {
-      system_message("Invalid query string in Fitbit redirect URI")
-      NULL
-    }
+    ## Catch Fitbit authorization code and send it to the backend
+    handle_fitbit_redirect_ui(req)
   } else {
     ## Serve the main UI
-    secure_ui(authorized_ui = authorized_ui)(req)
+    aegis_ui(authorized_ui)(req)
   }
 }
 
@@ -70,19 +78,22 @@ ui <- function(req) {
 #' @importFrom glue glue_data glue
 server <- function(input, output, session) {
 
-  ss <- secure_server(authorize_user_fn = function(user) {
-    user$email == "itkonen.juha@gmail.com"
-  })
+  aegis <- aegis_server(
+    providers = "google",
+    authorize_user = function(user) {
+      user$email == "itkonen.juha@gmail.com"
+    }
+  )
 
   observeEvent(input$sign_out, {
-    system_message("User {ss$user()$uid} signed out")
-    ss$sign_out()
+    system_message("User {aegis$user()$uid} signed out")
+    aegis$sign_out()
   })
 
-  observeEvent(ss$authorization(), {
-    req(ss$authorization())
+  observeEvent(aegis$is_authorized(), {
+    req(aegis$is_authorized())
     system_message(
-      "User {ss$user()$uid} entered the authorized site"
+      "User {aegis$user()$uid} entered the authorized site"
     )
 
     output$main <- renderUI({
@@ -94,14 +105,14 @@ server <- function(input, output, session) {
 
     fitbit <- mod_fitbit_server(
       "fitbit",
-      user = ss$user,
+      user = aegis$user,
       redirect_to_authorization = reactive(input$authorize_fitbit),
       refresh_data = reactive(input$refresh_data)
     )
 
     rdb <- mod_reactive_db_server(
       "db",
-      uid = ss$user()$uid,
+      uid = aegis$user()$uid,
       con = con,
       refresh_data = reactive(input$refresh_data)
     )

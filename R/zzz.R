@@ -6,11 +6,10 @@
     shiny.host = "0.0.0.0",
     ## shiny.cache = cache_disk("cache"),
     plumber.docs = FALSE,
-    plumber.port = 8000,
     sofrosyne.db_host =
       Sys.getenv("SOFROSYNE_DB_HOST", "localhost"),
     sofrosyne.db_user =
-      Sys.getenv("SOFROSYNE_DB_USER", "postgres"),
+      Sys.getenv("SOFROSYNE_DB_USER", "frontend"),
     sofrosyne.db_password =
       Sys.getenv("SOFROSYNE_DB_PASSWORD"),
     sofrosyne.fitbit_client_id =
@@ -19,6 +18,7 @@
       Sys.getenv("SOFROSYNE_FITBIT_CLIENT_SECRET"),
     sofrosyne.backend_url =
       Sys.getenv("SOFROSYNE_BACKEND_URL", "http://localhost:8000"),
+    sofrosyne.backend_port = 8000,
     sofrosyne.frontend_url =
       Sys.getenv("SOFROSYNE_FRONTEND_URL", "http://localhost:8080"),
     ## Used to request redirect_uri from the backend

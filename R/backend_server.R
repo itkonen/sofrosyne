@@ -4,12 +4,16 @@ backend_server <- function() {
   system_message("Starting backend server")
   connect_db()
   pr() |>
+    ## Health check endpoint
+    ## Used by load balancers to check if the server is alive
     pr_get("/health-check", function(req, res) {
       "OK"
     },
     serializer = serializer_text()
     ) |>
     ## Return Fitbit authorization URL for frontend
+    ## Creates a PKCE and state, stores them in cache,
+    ## and returns the URL leading the user to Fitbit authorization page.
     pr_get("/fitbit-auth-url", function(req, res) {
       if (!check_backend_access_token(req, res)) {
         return(res)
@@ -28,6 +32,11 @@ backend_server <- function() {
     serializer = serializer_unboxed_json()
     ) |>
     ## Endpoint for Fitbit redirect uri
+    ## Called by Fitbit after user authorizes the app
+    ## Receives the authorization code and state from Fitbit,
+    ## retrieves the PKCE and uid from cache,
+    ## requests the access token from Fitbit,
+    ## and creates subscriptions for the user.
     pr_get("/fitbit-auth-code", function(req, res) {
       if (!check_backend_access_token(req, res)) {
         return(res)
@@ -70,6 +79,7 @@ backend_server <- function() {
     serializer = serializer_unboxed_json()
     ) |>
     ## Fitbit subscriber to receive notifications
+    ## Called by Fitbit when there is new data for a user
     pr_post("/fitbit-subscriber", function(req, res) {
       if (handle_fibit_subscriber_verification(req, res)) {
         return(res)
@@ -85,6 +95,7 @@ backend_server <- function() {
       res$status <- 204
       res
     }) |>
+    ## Refresh Fitbit data for a user
     pr_get("/fitbit-refresh-data", function(req, res) {
       if (!check_backend_access_token(req, res)) {
         return(res)
@@ -102,7 +113,7 @@ backend_server <- function() {
     }) |>
     pr_run(
       host = "0.0.0.0",
-      port = as.integer(Sys.getenv("PORT", 8000)),
+      port = getOption("sofrosyne.backend_port", 8000),
       docs = FALSE
     )
 }
