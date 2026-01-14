@@ -14,6 +14,42 @@ services:
       timeout: 5s
       retries: 20
 
+  backend:
+    image: sofrosyne:latest
+    container_name: sofrosyne_backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+      ## The command needs to be ./run_backend.R
+      command: ./run_backend.R
+      args:
+        - GITHUB_PAT=${GITHUB_PAT}
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    image: sofrosyne:latest
+    container_name: sofrosyne_frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+      ## The command needs to be ./run_frontend.R
+      command: ./run_frontend.R
+      args:
+        - GITHUB_PAT=${GITHUB_PAT}
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   pgdata:
     name: sofrosyne_pgdata
