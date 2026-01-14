@@ -21,9 +21,9 @@ services:
       context: .
       dockerfile: Dockerfile
       ## The command needs to be ./run_backend.R
-      command: ./run_backend.R
       args:
         - GITHUB_PAT=${GITHUB_PAT}
+    command: ./run_backend.R
     restart: unless-stopped
     env_file: .env
     ports:
@@ -39,9 +39,9 @@ services:
       context: .
       dockerfile: Dockerfile
       ## The command needs to be ./run_frontend.R
-      command: ./run_frontend.R
       args:
         - GITHUB_PAT=${GITHUB_PAT}
+    command: ./run_frontend.R
     restart: unless-stopped
     env_file: .env
     ports:
