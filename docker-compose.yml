@@ -7,7 +7,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/home/juha/workspace/sofrosyne/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d sofrosyne"]
       interval: 5s
@@ -16,3 +16,4 @@ services:
 
 volumes:
   pgdata:
+    name: sofrosyne_pgdata
