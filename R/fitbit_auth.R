@@ -183,6 +183,9 @@ FitbitToken <- R6Class(
       } else {
         ## Get token from database
         token <- .env$db$get_fitbit_token(uid = uid)
+        if (nrow(token) == 0) {
+          stop("No Fitbit token found for user ", uid)
+        }
         .access_token <<- token$access_token
         expires_at <<- token$expires_at
         refresh_token <<- token$refresh_token
