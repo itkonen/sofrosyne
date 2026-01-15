@@ -26,8 +26,15 @@ services:
     command: ./run_backend.R
     restart: unless-stopped
     env_file: .env
+    environment:
+      SOFROSYNE_DB_HOST: postgres
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/health-check || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 20
     depends_on:
       postgres:
         condition: service_healthy
@@ -44,10 +51,14 @@ services:
     command: ./run_frontend.R
     restart: unless-stopped
     env_file: .env
+    environment:
+      SOFROSYNE_DB_HOST: postgres
     ports:
       - "8080:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      backend:
         condition: service_healthy
 
 volumes:

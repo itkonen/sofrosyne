@@ -3,6 +3,7 @@ FROM rocker/shiny:4.5.2
 RUN apt-get update && apt-get install -y  --no-install-recommends \
     libsodium-dev \
     libpq-dev \
+    curl \
     # make \
     && rm -rf /var/lib/apt/lists/*
 
