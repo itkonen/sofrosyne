@@ -48,7 +48,6 @@ services:
       ## The command needs to be ./run_frontend.R
       args:
         - GITHUB_PAT=${GITHUB_PAT}
-    command: ./run_frontend.R
     restart: unless-stopped
     env_file: .env
     environment:
