@@ -78,7 +78,13 @@ backend_server <- function() {
     },
     serializer = serializer_unboxed_json()
     ) |>
-    ## Fitbit subscriber to receive notifications
+    ## Fitbit subscriber verification (GET)
+    ## Called by Fitbit to verify the subscriber endpoint
+    pr_get("/fitbit-subscriber", function(req, res) {
+      handle_fibit_subscriber_verification(req, res)
+      res
+    }) |>
+    ## Fitbit subscriber to receive notifications (POST)
     ## Called by Fitbit when there is new data for a user
     pr_post("/fitbit-subscriber", function(req, res) {
       if (handle_fibit_subscriber_verification(req, res)) {
