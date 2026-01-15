@@ -127,7 +127,6 @@ server <- function(input, output, session) {
 
 #' @export
 run_app <- function() {
-  pergamos::set_cookie_key("sofrosyne")
   system_message("Starting Sofrosyne app")
   if (is.null(getOption("sofrosyne.db_password"))) {
     stop("SOFROSYNE_DB_PASSWORD not set")
