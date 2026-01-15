@@ -8,7 +8,7 @@ sofrosyne_model_interface <- function(lazy_tbl) {
     ) |>
     filter(
       ## Outliers
-      !(value < 900 & variable == "calories_in")
+      !(value < 700 & variable == "calories_in")
     ) |>
     mutate(
       time = as.Date(time)
