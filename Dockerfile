@@ -12,7 +12,7 @@ RUN install2.r -s -n 8 --error \
     devtools \
     && rm -rf /tmp/downloaded_packages/ /tmp/*.rds
 
-#RUN r -e 'devtools::install_github("robonomist/roboplotr")'
+RUN r -e 'devtools::install_github("robonomist/roboplotr")'
 
 # Newer packages
 # RUN r -e 'install.packages(c("shiny", "bslib"), repos = "https://cloud.r-project.org")'
