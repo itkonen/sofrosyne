@@ -110,6 +110,13 @@ SofrosyneModel <- R6Class(
     ),
 
     initialize = function(data, params = list(), forecast_horizon = 30L) {
+      ## Validate data
+      if (nrow(data) == 0) {
+        stop("Data is empty")
+      }
+      if (!all(colnames(data) %in% c("time", "variable", "value"))) {
+        stop("Data must contain columns: time, variable, value")
+      }
       raw_data <<- data
       forecast_horizon <<- forecast_horizon
       params$init_state$t <- as.integer(min(raw_data$time, na.rm = TRUE))
