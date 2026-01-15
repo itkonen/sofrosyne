@@ -52,6 +52,7 @@ services:
     env_file: .env
     environment:
       SOFROSYNE_DB_HOST: postgres
+      SOFROSYNE_BACKEND_URL: http://backend:8000
     ports:
       - "8080:8080"
     depends_on:
