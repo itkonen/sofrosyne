@@ -41,7 +41,7 @@
     "Sofrosyne db host: ", getOption("sofrosyne.db_host"), "\n",
     "Fitbit client id: ", getOption("sofrosyne.fitbit_client_id")
   )
-  reg.finalizer(.env, close_db, onexit = TRUE)
+  ## reg.finalizer(.env, close_db, onexit = TRUE)
 }
 
 .env <- new.env(parent = emptyenv())
@@ -51,9 +51,9 @@ connect_db <- function() {
   .env$db <- SofrosyneDB$new()
 }
 
-close_db <- function(env = .env) {
-  if (!is.null(env$con)) {
-    cat("Closing database connection\n")
-    pool::poolClose(env$con)
-  }
-}
+## close_db <- function(env = .env) {
+##   if (!is.null(env$db)) {
+##     cat("Closing database connection\n")
+    
+##   }
+## }

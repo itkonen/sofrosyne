@@ -8,7 +8,7 @@ SofrosyneDB <- R6Class(
   public = list(
     con = NULL,
     initialize = function() {
-      system_message("Connecting to database")
+      system_message("Connecting to database: host={getOption('sofrosyne.db_host')}, user={getOption('sofrosyne.db_user')}")
       con <<- pool::dbPool(
         drv = RPostgres::Postgres(),
         host = getOption("sofrosyne.db_host"),
