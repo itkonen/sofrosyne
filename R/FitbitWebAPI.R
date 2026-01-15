@@ -7,16 +7,19 @@ FitbitWebAPI <- R6Class(
   "FitbitWebAPI",
   portable = FALSE,
   public = list(
+
     #' @field token A Fitbit user token
     token = NULL,
     #' @field rate_limit_key The rate limit key unique to the user
     rate_limit_key = NULL,
+
     #' @description Initialize the FitbitWebAPI object
     #' @param token A Fitbit user token
     initialize = function(token) {
       token <<- token
       rate_limit_key <<- paste0("fitbit-rl-", tolower(token$user_id))
     },
+
     #' @description Query the Fitbit Web API
     #' @param ep character vector of the endpoint
     #' @param method The HTTP method
@@ -35,6 +38,7 @@ FitbitWebAPI <- R6Class(
         resp_store_rate_limit()
       if (method != "DELETE") resp_body_json(resp)
     },
+
     #' @description Store the rate limit information
     #' Currently using a app wide rate limiter cache
     #' @param resp The response object
@@ -60,6 +64,7 @@ FitbitWebAPI <- R6Class(
       }
       resp
     },
+
     #' @description Limit the rate of API calls
     #' Now the response is just to wait, which is not ideal.
     limit_rate = function() {
@@ -77,6 +82,8 @@ FitbitWebAPI <- R6Class(
         }
       }
     },
+
+    #' @description Handle Fitbit API errors
     req_fitbit_error = function(req, error_message = NULL) {
       req_error(req, body = function(resp) {
         errors <- resp_body_json(resp)$errors
@@ -89,6 +96,7 @@ FitbitWebAPI <- R6Class(
         })
       })
     },
+
     #' @description Get the weight log
     #' @param start_date The start date
     #' @param end_date The end date. Use either end_date or period. Range can be at most 31 days.
@@ -131,6 +139,7 @@ FitbitWebAPI <- R6Class(
           value = double())
       }
     },
+
     #' @description Get nutrition time series
     #' https://dev.fitbit.com/build/reference/web-api/nutrition-timeseries/get-nutrition-timeseries-by-date-range/
     #' @param start_date The start date
@@ -171,6 +180,7 @@ FitbitWebAPI <- R6Class(
         )
       }
     },
+
     #' @description Get activity time series
     #' https://dev.fitbit.com/build/reference/web-api/intraday/get-activity-intraday-by-date/
     #' @param start_date The start date
@@ -210,6 +220,7 @@ FitbitWebAPI <- R6Class(
         )
       }
     },
+
     #' @description Get the intraday data
     #' @param date The date
     #' @param resource The resource to query. One of "calories", "distance", "elevation", "floors", "steps", "swimming-strokes".
@@ -260,6 +271,7 @@ FitbitWebAPI <- R6Class(
       attr(data, "datasetType") <- intraday$datasetType
       data |> relocate(variable, time, value)
     },
+
     #' @description Create a subscription
     create_subscription = function(collection_path =
                                      c("activities", "body", "foods", "sleep",
@@ -275,6 +287,7 @@ FitbitWebAPI <- R6Class(
         error_message = glue("Failed to create subscription for user {self$token$user_id}.")
       )
     },
+
     #' @description Delete a subscription
     delete_subscription = function(collection_path =
                                      c("activities", "body", "foods", "sleep",
@@ -290,6 +303,7 @@ FitbitWebAPI <- R6Class(
         error_message = glue("Failed to delete subscription for user {self$token$user_id}.")
       )
     },
+
     #' @description List subscriptions
     list_subscriptions = function(collection_path =
                                     c("activities", "body", "foods", "sleep",

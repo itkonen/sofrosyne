@@ -1,8 +1,10 @@
 #' @import plumber
 #' @export
 backend_server <- function() {
+
   system_message("Starting backend server")
   connect_db()
+
   pr() |>
     ## Health check endpoint
     ## Used by load balancers to check if the server is alive
@@ -11,6 +13,7 @@ backend_server <- function() {
     },
     serializer = serializer_text()
     ) |>
+
     ## Return Fitbit authorization URL for frontend
     ## Creates a PKCE and state, stores them in cache,
     ## and returns the URL leading the user to Fitbit authorization page.
@@ -31,6 +34,7 @@ backend_server <- function() {
     },
     serializer = serializer_unboxed_json()
     ) |>
+
     ## Endpoint for Fitbit redirect uri
     ## Called by Fitbit after user authorizes the app
     ## Receives the authorization code and state from Fitbit,
@@ -66,6 +70,7 @@ backend_server <- function() {
       res$status <- 204
       res
     }) |>
+
     ## Check if user is Fitbit authorized
     pr_get("/fitbit-authorized", function(req, res) {
       if (!check_backend_access_token(req, res)) {
@@ -78,12 +83,14 @@ backend_server <- function() {
     },
     serializer = serializer_unboxed_json()
     ) |>
+
     ## Fitbit subscriber verification (GET)
     ## Called by Fitbit to verify the subscriber endpoint
     pr_get("/fitbit-subscriber", function(req, res) {
       handle_fibit_subscriber_verification(req, res)
       res
     }) |>
+
     ## Fitbit subscriber to receive notifications (POST)
     ## Called by Fitbit when there is new data for a user
     pr_post("/fitbit-subscriber", function(req, res) {
@@ -101,6 +108,7 @@ backend_server <- function() {
       res$status <- 204
       res
     }) |>
+
     ## Refresh Fitbit data for a user
     pr_get("/fitbit-refresh-data", function(req, res) {
       if (!check_backend_access_token(req, res)) {
@@ -113,10 +121,13 @@ backend_server <- function() {
       res$status <- 204
       res
     }) |>
+
+    ## Global error handler
     pr_set_error(function(req, res, err) {
       res$status <- 500
       list(error = err$message)
     }) |>
+
     pr_run(
       host = "0.0.0.0",
       port = getOption("sofrosyne.backend_port", 8000),
@@ -244,7 +255,7 @@ refresh_fitbit_data <- function(uid) {
       select(variable, time, value) |>
       drop_na(value)
   }, error = function(e) {
-    system_message("Error retrieving weight data")
+    system_message("Error retrieving weight data: {e$message}")
     NULL
   })
   calories_in <- try_fetch({
@@ -254,14 +265,14 @@ refresh_fitbit_data <- function(uid) {
         variable = "calories_in"
       )
   }, error = function(e) {
-    system_message("Error retrieving calories_in data")
+    system_message("Error retrieving calories_in data: {e$message}")
     NULL
   })
   calories_out <- try_fetch({
     api$activity_time_series(td - 1094L, td, resource = "calories") |>
       mutate(variable = "calories_out")
   }, error = function(e) {
-    system_message("Error retrieving calories_out data")
+    system_message("Error retrieving calories_out data: {e$message}")
     NULL
   })
   ## Intrady calories out, retrieve 70 days in one day batches
@@ -274,7 +285,7 @@ refresh_fitbit_data <- function(uid) {
       filter(variable == "calories") |>
       mutate(variable = "calories_out_intraday")
   }, error = function(e) {
-    system_message("Error retrieving calories_out_intraday data")
+    system_message("Error retrieving calories_out_intraday data: {e$message}")
     NULL
   })
   bind_rows(weight, calories_in, calories_out, calories_out_intraday) |>
